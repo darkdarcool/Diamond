@@ -6,6 +6,8 @@ use deno_core::op_sync;
 use deno_core::JsRuntime;
 use std::env;
 use std::io::Read;
+pub mod cli;
+use cli::cli::parse;
 
 fn read(filename: &str) -> std::string::String {
     match File::open(filename) {
@@ -24,8 +26,8 @@ fn read(filename: &str) -> std::string::String {
     }
 }
 
-fn main() {
-  let args: Vec<String> = env::args().collect();
+fn runtime(filename: &str, allowconsole: bool) {
+  // let args: Vec<String> = env::args().collect();
   let mut runtime = JsRuntime::new(Default::default());
   
   runtime.register_op(
@@ -51,14 +53,18 @@ fn main() {
   );
   
   runtime.sync_ops_cache();
-  let command = &args[1];
-  let mut filename = String::new();
-  if command == "run" {
-    filename = format!("{}", args[2]);
-  }
   filename.to_owned();
   let contents = read(&filename);
-  let pre = preloaded::preloaded::getPreloaded();
+  let pre = preloaded::preloaded::getPreloaded(allowconsole);
   let code = format!("try {{\n{}{}\n\n}}\ncatch(err) {{ println(`${{err}}`)}}", pre, contents);
   runtime.execute_script("<usage>", &code);
+}
+
+fn main() {
+  let args: Vec<String> = env::args().collect();
+  let parsed = parse(args);
+  if parsed.action == "run" {
+    runtime(&parsed.filename, parsed.allow_console);
+  }
+  // runtime("./tests/require.js");
 }
