@@ -13,3 +13,5 @@ Diamond is build on Javascript, and is like it in almost every single way. But t
 ``` javascript
 println("Hello, world!");
 ```
+
+But don't worry JS developers who don't want to leave things like `console`, we have options in the CLI that enable it!
